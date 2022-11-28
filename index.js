@@ -21,6 +21,9 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         const carDetailsCollection = client.db('carPolli').collection('carCollections');
+
+        const bookingsCollection = client.db('carPolli').collection('bookings');
+
         const usersCollection = client.db('carPolli').collection('users');
 
 
@@ -31,6 +34,13 @@ async function run() {
             res.send(categoryDetails);
         })
 
+        app.post('/bookings', async (req, res) => {
+            const booking = req.body;
+            console.log(booking);
+            const result = await bookingsCollection.insertOne(booking);
+            res.send(result);
+
+        })
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
             const user = req.body;
@@ -47,7 +57,10 @@ async function run() {
             console.log(token);
             res.send(result, token)
         })
+
+
     }
+
     finally {
 
     }

@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const jwt = require('jsonwebtoken');
+const { query } = require('express');
 require('dotenv').config()
 const port = process.env.PORT || 5000;
 
@@ -34,28 +35,38 @@ async function run() {
             res.send(categoryDetails);
         })
 
+
+        app.get('/bookings', async (req, res) => {
+            const email = req.query.email;
+            const query = { userEmail: email };
+            const bookings = await bookingsCollection.find(query).toArray();
+            res.send(bookings);
+        })
+
+
         app.post('/bookings', async (req, res) => {
             const booking = req.body;
-            console.log(booking);
             const result = await bookingsCollection.insertOne(booking);
             res.send(result);
-
         })
-        app.put('/user/:email', async (req, res) => {
-            const email = req.params.email;
-            const user = req.body;
-            const filter = { email: email }
-            const options = { upsert: true }
-            const updateDoc = {
-                $set: user,
+
+
+        app.get('/jwt', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const user = await usersCollection.findOne(query);
+            if (user) {
+                const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, { expiresIn: '1h' })
+                return res.send({ accessToken: token })
             }
-            const result = usersCollection.updateOne(filter, updateDoc, options);
-            console.log(result);
-            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-                expiresIn: '1d',
-            })
-            console.log(token);
-            res.send(result, token)
+            res.status(403).send({ accessToken: '' })
+        })
+
+
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const result = await usersCollection.insertOne(user);
+            res.send(result);
         })
 
 

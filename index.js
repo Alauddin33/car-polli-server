@@ -58,6 +58,10 @@ async function run() {
         })
 
 
+
+
+
+
         app.get('/bookings', verifyJWT, async (req, res) => {
             const email = req.query.email;
             const decodedEmail = req.decoded.email;
@@ -79,6 +83,7 @@ async function run() {
 
         app.get('/jwt', async (req, res) => {
             const email = req.query.email;
+            console.log(email);
             const query = { email: email };
             const user = await usersCollection.findOne(query);
             if (user) {
@@ -97,9 +102,9 @@ async function run() {
         })
 
 
-        app.get('/user/admin/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: ObjectId(id) };
+        app.get('/user/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email };
             const user = await usersCollection.findOne(query);
             res.send({ isAdmin: user?.role === 'admin' });
         })
@@ -133,6 +138,8 @@ async function run() {
             const result = await usersCollection.updateOne(filter, updatedDoc, options);
             res.send(result);
         })
+
+
 
 
 

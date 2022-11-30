@@ -97,6 +97,14 @@ async function run() {
         })
 
 
+        app.get('/user/admin/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const user = await usersCollection.findOne(query);
+            res.send({ isAdmin: user?.role === 'admin' });
+        })
+
+
 
         app.post('/users', async (req, res) => {
             const user = req.body;
@@ -105,7 +113,15 @@ async function run() {
         })
 
 
-        app.put('/users/admin/:id', async (req, res) => {
+        app.put('/users/admin/:id', verifyJWT, async (req, res) => {
+            const decodedEmail = req.decoded.email;
+            const query = { email: decodedEmail };
+            const user = await usersCollection.findOne(query);
+
+            if (user?.role !== 'admin') {
+                res.status(403).send({ message: 'forbidden access' });
+            }
+
             const id = req.params.id;
             const filter = { _id: ObjectId(id) }
             const options = { upsert: true };

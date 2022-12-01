@@ -65,6 +65,21 @@ async function run() {
         })
 
 
+        app.get('/products/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const result = await carDetailsCollection.find(query).toArray();
+            res.send(result);
+        })
+
+
+        app.delete('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await carDetailsCollection.deleteOne(query);
+            res.send(result);
+        })
+
 
         app.get('/bookings', verifyJWT, async (req, res) => {
             const email = req.query.email;
@@ -99,8 +114,20 @@ async function run() {
 
 
 
-        app.get('/users', async (req, res) => {
+        app.get('/users/admin', async (req, res) => {
             const query = {};
+            const users = await usersCollection.find(query).toArray();
+            res.send(users);
+        })
+
+
+        app.get('/users/seller', async (req, res) => {
+            const query = { role: 'seller' };
+            const users = await usersCollection.find(query).toArray();
+            res.send(users);
+        })
+        app.get('/users/buyer', async (req, res) => {
+            const query = { role: 'buyer' };
             const users = await usersCollection.find(query).toArray();
             res.send(users);
         })
@@ -115,11 +142,36 @@ async function run() {
 
 
 
+        app.get('/user/seller/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email };
+            const user = await usersCollection.findOne(query);
+            res.send({ isSeller: user?.role === 'seller' });
+        })
+
+        app.get('/user/buyer/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email };
+            const user = await usersCollection.findOne(query);
+            res.send({ isBuyer: user?.role === 'buyer' || user?.role === "" });
+        })
+
+
         app.post('/users', async (req, res) => {
             const user = req.body;
             const result = await usersCollection.insertOne(user);
             res.send(result);
         })
+
+
+
+        app.delete('/users/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await usersCollection.deleteOne(query);
+            res.send(result);
+        })
+
 
 
         app.put('/users/admin/:id', verifyJWT, async (req, res) => {

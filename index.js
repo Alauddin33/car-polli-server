@@ -65,12 +65,44 @@ async function run() {
         })
 
 
+        app.patch('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const status = req.body.status;
+            const query = { _id: ObjectId(id) }
+            const updatedDoc = {
+                $set: {
+                    status: status
+                }
+            }
+            const result = await carDetailsCollection.updateOne(query, updatedDoc);
+            res.send(result);
+
+        })
+
+
+        app.put('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const Adv = req.body.Adv;
+            const query = { _id: ObjectId(id) }
+            const updatedDoc = {
+                $set: {
+                    Adv: Adv
+                }
+            }
+            const result = await carDetailsCollection.updateOne(query, updatedDoc);
+            res.send(result);
+
+        })
+
+
+
         app.get('/products/:email', async (req, res) => {
             const email = req.params.email;
             const query = { email: email };
             const result = await carDetailsCollection.find(query).toArray();
             res.send(result);
         })
+
 
 
         app.delete('/products/:id', async (req, res) => {
@@ -126,6 +158,7 @@ async function run() {
             const users = await usersCollection.find(query).toArray();
             res.send(users);
         })
+
         app.get('/users/buyer', async (req, res) => {
             const query = { role: 'buyer' };
             const users = await usersCollection.find(query).toArray();
